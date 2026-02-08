@@ -1,0 +1,581 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+.subject-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.badge-lg {
+    font-size: 1.1em;
+    padding: 8px 12px;
+}
+
+.info-box {
+    border-radius: 10px;
+}
+
+.small-box {
+    border-radius: 10px;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.modal-content {
+    border-radius: 15px;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.border-right {
+    border-right: 1px solid #dee2e6;
+}
+
+.text-center h4, .text-center h3 {
+    margin-bottom: 5px;
+}
+
+.subject-card .card-body {
+    padding: 1.5rem;
+}
+
+.performance-indicator {
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+</style>
+{% endblock custom_css %}
+
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-bar"></i> {{page_title}}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if results %}
+                            <!-- Overall Summary Card -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="card card-info">
+                                        <div class="card-header">
+                                            <h3 class="card-title"><i class="fas fa-chart-pie"></i> Overall Performance Summary</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-lg-3 col-6">
+                                                    <div class="small-box bg-info">
+                                                        <div class="inner">
+                                                            <h3>{{ results|length }}</h3>
+                                                            <p>Total Subjects</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fas fa-book"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-6">
+                                                    <div class="small-box bg-success">
+                                                        <div class="inner">
+                                                            <h3 id="avgPercentage">0%</h3>
+                                                            <p>Average Percentage</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fas fa-percentage"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-6">
+                                                    <div class="small-box bg-warning">
+                                                        <div class="inner">
+                                                            <h3 id="totalMarks">0</h3>
+                                                            <p>Total Marks Obtained</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fas fa-trophy"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-6">
+                                                    <div class="small-box bg-danger">
+                                                        <div class="inner">
+                                                            <h3 id="overallGrade">-</h3>
+                                                            <p>Overall Grade</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fas fa-medal"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Individual Subject Cards -->
+                            <div class="row">
+                                {% for result in results %}
+                                <div class="col-lg-4 col-md-6 mb-4">
+                                    <div class="card subject-card" data-subject-id="{{ result.id }}" style="cursor: pointer; transition: transform 0.2s;">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5 class="card-title mb-0">
+                                                <i class="fas fa-book-open"></i> {{ result.subject.name }}
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row text-center">
+                                                <div class="col-6">
+                                                    <div class="border-right">
+                                                        <h4 class="text-info">{{ result.test }}/50</h4>
+                                                        <small class="text-muted">Internal Marks</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <h4 class="text-primary">{{ result.exam }}/50</h4>
+                                                    <small class="text-muted">External Marks</small>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="row text-center">
+                                                <div class="col-6">
+                                                    {% with total=result.test|add:result.exam %}
+                                                        <h3 class="text-success">{{ total }}/100</h3>
+                                                        <small class="text-muted">Total Marks</small>
+                                                    {% endwith %}
+                                                </div>
+                                                <div class="col-6">
+                                                    {% with total=result.test|add:result.exam %}
+                                                        <h3 class="
+                                                            {% if total >= 90 %}text-success
+                                                            {% elif total >= 75 %}text-info
+                                                            {% elif total >= 60 %}text-warning
+                                                            {% elif total >= 40 %}text-secondary
+                                                            {% else %}text-danger
+                                                            {% endif %}
+                                                        ">{{ total }}%</h3>
+                                                        <small class="text-muted">Percentage</small>
+                                                    {% endwith %}
+                                                </div>
+                                            </div>
+                                            <div class="text-center mt-3">
+                                                {% with total=result.test|add:result.exam %}
+                                                    <span class="badge badge-lg 
+                                                        {% if total >= 90 %}badge-success
+                                                        {% elif total >= 80 %}badge-success
+                                                        {% elif total >= 70 %}badge-info
+                                                        {% elif total >= 60 %}badge-info
+                                                        {% elif total >= 50 %}badge-warning
+                                                        {% elif total >= 40 %}badge-warning
+                                                        {% else %}badge-danger
+                                                        {% endif %}
+                                                    ">
+                                                        Grade: 
+                                                        {% if total >= 90 %}A+
+                                                        {% elif total >= 80 %}A
+                                                        {% elif total >= 70 %}B+
+                                                        {% elif total >= 60 %}B
+                                                        {% elif total >= 50 %}C+
+                                                        {% elif total >= 40 %}C
+                                                        {% else %}F
+                                                        {% endif %}
+                                                    </span>
+                                                {% endwith %}
+                                            </div>
+                                            <div class="text-center mt-2">
+                                                <small class="text-muted"><i class="fas fa-mouse-pointer"></i> Click for details</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Detailed Results Table (Initially Hidden) -->
+                            <div class="card card-secondary" id="detailedResults" style="display: none;">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-table"></i> Detailed Results Table</h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" id="hideDetails">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-hover">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th style="width: 10%">#</th>
+                                                    <th style="width: 30%">Subject</th>
+                                                    <th style="width: 15%">Internal Marks</th>
+                                                    <th style="width: 15%">External Marks</th>
+                                                    <th style="width: 15%">Total Marks</th>
+                                                    <th style="width: 15%">Percentage</th>
+                                                    <th style="width: 10%">Grade</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for result in results %}
+                                                <tr>
+                                                    <td class="text-center">{{ forloop.counter }}</td>
+                                                    <td><strong>{{ result.subject.name }}</strong></td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-info">{{ result.test }}/50</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-primary">{{ result.exam }}/50</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% with total=result.test|add:result.exam %}
+                                                            <strong class="text-primary">{{ total }}/100</strong>
+                                                        {% endwith %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% with total=result.test|add:result.exam %}
+                                                            <span class="badge 
+                                                                {% if total >= 90 %}badge-success
+                                                                {% elif total >= 75 %}badge-info
+                                                                {% elif total >= 60 %}badge-warning
+                                                                {% elif total >= 40 %}badge-secondary
+                                                                {% else %}badge-danger
+                                                                {% endif %}
+                                                            ">{{ total }}%</span>
+                                                        {% endwith %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% with total=result.test|add:result.exam %}
+                                                            {% if total >= 90 %}
+                                                                <span class="badge badge-success">A+</span>
+                                                            {% elif total >= 80 %}
+                                                                <span class="badge badge-success">A</span>
+                                                            {% elif total >= 70 %}
+                                                                <span class="badge badge-info">B+</span>
+                                                            {% elif total >= 60 %}
+                                                                <span class="badge badge-info">B</span>
+                                                            {% elif total >= 50 %}
+                                                                <span class="badge badge-warning">C+</span>
+                                                            {% elif total >= 40 %}
+                                                                <span class="badge badge-warning">C</span>
+                                                            {% else %}
+                                                                <span class="badge badge-danger">F</span>
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Show Table Button -->
+                            <div class="text-center mt-3">
+                                <button class="btn btn-info btn-lg" id="showTableBtn">
+                                    <i class="fas fa-table"></i> View Detailed Results Table
+                                </button>
+                            </div>
+
+                        {% else %}
+                            <div class="alert alert-info text-center">
+                                <h4><i class="fas fa-info-circle"></i> No Results Available</h4>
+                                <p>Your results haven't been uploaded yet. Please check back later or contact your instructor.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Subject Detail Modal -->
+<div class="modal fade" id="subjectDetailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h4 class="modal-title"><i class="fas fa-chart-line"></i> <span id="modalSubjectName"></span> - Detailed Analysis</h4>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box bg-info">
+                            <span class="info-box-icon"><i class="fas fa-clipboard-check"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Internal Score</span>
+                                <span class="info-box-number" id="modalTestScore">0/50</span>
+                                <div class="progress">
+                                    <div class="progress-bar" id="testProgressBar" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-description" id="testPercentage">0% of Internal</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box bg-success">
+                            <span class="info-box-icon"><i class="fas fa-graduation-cap"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">External Score</span>
+                                <span class="info-box-number" id="modalExamScore">0/50</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" id="examProgressBar" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-description" id="examPercentage">0% of External</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3 id="modalTotalMarks">0/100</h3>
+                                <p>Total Marks</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small-box bg-primary">
+                            <div class="inner">
+                                <h3 id="modalPercentage">0%</h3>
+                                <p>Percentage</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-percent"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small-box" id="modalGradeBox">
+                            <div class="inner">
+                                <h3 id="modalGrade">-</h3>
+                                <p>Grade</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-award"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Performance Analysis</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="performanceMessage"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    // Calculate overall statistics
+    let totalMarks = 0;
+    let totalSubjects = 0;
+    let grades = [];
+    
+    {% for result in results %}
+        {% with total=result.test|add:result.exam %}
+            totalMarks += {{ total }};
+            totalSubjects++;
+            
+            // Determine grade points for GPA calculation
+            {% if total >= 90 %}
+                grades.push(4.0);
+            {% elif total >= 80 %}
+                grades.push(3.7);
+            {% elif total >= 70 %}
+                grades.push(3.3);
+            {% elif total >= 60 %}
+                grades.push(3.0);
+            {% elif total >= 50 %}
+                grades.push(2.7);
+            {% elif total >= 40 %}
+                grades.push(2.0);
+            {% else %}
+                grades.push(0.0);
+            {% endif %}
+        {% endwith %}
+    {% endfor %}
+    
+    if (totalSubjects > 0) {
+        // Calculate average percentage
+        let avgPercentage = Math.round(totalMarks / totalSubjects);
+        $('#avgPercentage').text(avgPercentage + '%');
+        
+        // Update total marks
+        $('#totalMarks').text(totalMarks + '/' + (totalSubjects * 100));
+        
+        // Calculate overall grade
+        let avgGPA = grades.reduce((a, b) => a + b, 0) / grades.length;
+        let overallGrade = 'F';
+        if (avgGPA >= 3.7) overallGrade = 'A+';
+        else if (avgGPA >= 3.3) overallGrade = 'A';
+        else if (avgGPA >= 3.0) overallGrade = 'B+';
+        else if (avgGPA >= 2.7) overallGrade = 'B';
+        else if (avgGPA >= 2.0) overallGrade = 'C';
+        else if (avgGPA > 0) overallGrade = 'D';
+        
+        $('#overallGrade').text(overallGrade);
+    }
+
+    // Subject card hover effects
+    $('.subject-card').hover(
+        function() {
+            $(this).css('transform', 'translateY(-5px)');
+            $(this).css('box-shadow', '0 4px 8px rgba(0,0,0,0.2)');
+        },
+        function() {
+            $(this).css('transform', 'translateY(0)');
+            $(this).css('box-shadow', 'none');
+        }
+    );
+
+    // Subject card click event
+    $('.subject-card').click(function() {
+        let subjectId = $(this).data('subject-id');
+        
+        // Find the result data
+        {% for result in results %}
+            if ({{ result.id }} == subjectId) {
+                let subjectName = '{{ result.subject.name }}';
+                let testScore = {{ result.test }};
+                let examScore = {{ result.exam }};
+                let totalScore = testScore + examScore;
+                let percentage = totalScore;
+                
+                // Update modal content
+                $('#modalSubjectName').text(subjectName);
+                $('#modalTestScore').text(testScore + '/50');
+                $('#modalExamScore').text(examScore + '/50');
+                $('#modalTotalMarks').text(totalScore + '/100');
+                $('#modalPercentage').text(percentage + '%');
+                
+                // Update progress bars
+                let testPercentage = (testScore / 50) * 100;
+                let examPercentage = (examScore / 50) * 100;
+                $('#testProgressBar').css('width', testPercentage + '%');
+                $('#examProgressBar').css('width', examPercentage + '%');
+                $('#testPercentage').text(testPercentage.toFixed(1) + '% of Internal');
+                $('#examPercentage').text(examPercentage.toFixed(1) + '% of External');
+                
+                // Determine grade and color
+                let grade, gradeClass;
+                if (totalScore >= 90) {
+                    grade = 'A+';
+                    gradeClass = 'bg-success';
+                } else if (totalScore >= 80) {
+                    grade = 'A';
+                    gradeClass = 'bg-success';
+                } else if (totalScore >= 70) {
+                    grade = 'B+';
+                    gradeClass = 'bg-info';
+                } else if (totalScore >= 60) {
+                    grade = 'B';
+                    gradeClass = 'bg-info';
+                } else if (totalScore >= 50) {
+                    grade = 'C+';
+                    gradeClass = 'bg-warning';
+                } else if (totalScore >= 40) {
+                    grade = 'C';
+                    gradeClass = 'bg-warning';
+                } else {
+                    grade = 'F';
+                    gradeClass = 'bg-danger';
+                }
+                
+                $('#modalGrade').text(grade);
+                $('#modalGradeBox').removeClass().addClass('small-box ' + gradeClass);
+                
+                // Performance analysis message
+                let performanceMessage = '';
+                if (totalScore >= 90) {
+                    performanceMessage = '<div class="alert alert-success"><i class="fas fa-star"></i> <strong>Outstanding Performance!</strong> You have achieved excellent results in this subject. Keep up the great work!</div>';
+                } else if (totalScore >= 80) {
+                    performanceMessage = '<div class="alert alert-success"><i class="fas fa-thumbs-up"></i> <strong>Great Job!</strong> You have performed very well in this subject. Continue your efforts!</div>';
+                } else if (totalScore >= 70) {
+                    performanceMessage = '<div class="alert alert-info"><i class="fas fa-check-circle"></i> <strong>Good Performance!</strong> You are doing well. With a little more effort, you can achieve even better results.</div>';
+                } else if (totalScore >= 60) {
+                    performanceMessage = '<div class="alert alert-info"><i class="fas fa-info-circle"></i> <strong>Satisfactory Performance!</strong> You have passed this subject. Consider reviewing the topics where you can improve.</div>';
+                } else if (totalScore >= 40) {
+                    performanceMessage = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Needs Improvement!</strong> You need to focus more on this subject. Consider seeking help from your instructor.</div>';
+                } else {
+                    performanceMessage = '<div class="alert alert-danger"><i class="fas fa-times-circle"></i> <strong>Requires Immediate Attention!</strong> You need significant improvement in this subject. Please consult with your instructor for additional support.</div>';
+                }
+                
+                $('#performanceMessage').html(performanceMessage);
+                
+                // Show modal
+                $('#subjectDetailModal').modal('show');
+                return false; // Exit the loop
+            }
+        {% endfor %}
+    });
+
+    // Show/Hide detailed table
+    $('#showTableBtn').click(function() {
+        $('#detailedResults').slideDown();
+        $(this).hide();
+    });
+
+    $('#hideDetails').click(function() {
+        $('#detailedResults').slideUp();
+        $('#showTableBtn').show();
+    });
+
+    // Add some animation to the cards on page load
+    $('.subject-card').each(function(index) {
+        $(this).css('opacity', '0').delay(index * 100).animate({
+            opacity: 1
+        }, 500);
+    });
+});
+</script>
+{% endblock custom_js %}

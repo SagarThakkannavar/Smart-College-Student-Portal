@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>MMEC College Portal</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- favicon -->
+    <link rel="shortcut icon" href="{%  static '/image/favicon1.ico' %}" />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="{% static 'plugins/fontawesome-free/css/all.min.css' %}"
+    />
+    <!-- Ionicons -->
+    <link
+      rel="stylesheet"
+      href="{% static 'https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css' %}"
+    />
+    <!-- icheck bootstrap -->
+    <link
+      rel="stylesheet"
+      href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}"
+    />
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}" />
+    <!-- Google Font: Source Sans Pro -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700"
+      rel="stylesheet"
+    />
+    <!-- Google Recaptcha     -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+      /* === Professional UI Enhancements === */
+      body {
+        font-family: "Source Sans Pro", sans-serif;
+        background-size: cover;
+        background-attachment: fixed;
+      }
+
+      .login-box {
+        margin-top: 50px;
+        width: 400px;
+      }
+
+      .login-logo a {
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
+      .card {
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border: none;
+      }
+
+      .login-card-body {
+        padding: 30px;
+        border-radius: 15px;
+      }
+
+      .form-control {
+        border-radius: 10px;
+        /* border: 1px solid #dcdcdc; */
+        transition: 0.3s;
+      }
+      .form-control:focus {
+        border-color: #00a4c6;
+        box-shadow: 0 0 8px rgba(0, 164, 198, 0.3);
+      }
+
+      .btn-success {
+        border-radius: 10px;
+        font-weight: bold;
+        transition: transform 0.2s;
+      }
+      .btn-success:hover {
+        transform: scale(1.05);
+      }
+
+      .alert {
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .g-recaptcha {
+        transform: scale(0.95);
+        transform-origin: 0 0;
+      }
+
+      /* Small footer for professionalism */
+      .portal-footer {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 13px;
+        /* color: #f0f0f0; */
+        opacity: 0.9;
+      }
+      .card {
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  border: none;
+  background: rgba(255, 255, 255, 0.15); /* Transparent white */
+  backdrop-filter: blur(10px);           /* Glassmorphism blur */
+  -webkit-backdrop-filter: blur(10px);   /* For Safari */
+}
+
+.login-card-body {
+  padding: 30px;
+  border-radius: 15px;
+  background: transparent; /* Let card background show */
+}
+
+    </style>
+  </head>
+
+  <body
+    class="hold-transition login-page"
+    style="
+      background: linear-gradient(
+          to right top,
+          rgba(5, 25, 55, 0.6),
+          rgba(253, 255, 255, 0)
+        ),
+        url('{% static 'image/clg.jpg' %}') no-repeat center center fixed;
+      background-size: cover;
+    "
+  >
+    <div class="login-box">
+      <img
+        style="margin-left: 100px; height: 150px; width: 160px"
+        src="{% static 'dist/img/virusx.png' %}"
+        rel="icon"
+        alt="logo"
+        border-radius="10px"
+        ;
+      />
+      <div class="login-logo">
+        <a href="" style="color: white"><b>College</b> Portal</a>
+      </div>
+      <!-- /.login-logo -->
+      <div class="card">
+        <div class="card-body login-card-body">
+          <!-- <p class="login-box-msg">Sign in to start your session</p> -->
+          {% if messages %}
+          <div class="col-12">
+            {% for message in messages %} {% if message.tags == 'error' %}
+            <div class="alert alert-danger text-center">{{message }}</div>
+            {% endif %} {% endfor %}
+          </div>
+          {% endif %}
+          <form action="doLogin/" method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              <input
+                required
+                type="email"
+                name="email"
+                class="form-control"
+                placeholder="Email"
+              />
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-envelope"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <input
+                required
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="Password"
+              />
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <div
+                class="g-recaptcha"
+                data-sitekey="6LfTGD4qAAAAAJLKy1TGJY7uuTh_T1cB5VikRWjF"
+              ></div>
+            </div>
+            <div class="row">
+              <div class="col-8">
+                <div class="icheck-primary">
+                  <input type="checkbox" id="remember" />
+                  <label for="remember"> Remember Me </label>
+                </div>
+              </div>
+              <!-- /.col -->
+              <div class="col-4">
+                <button type="submit" class="btn btn-success btn-block">
+                  Log In
+                </button>
+              </div>
+
+              <!-- /.col -->
+            </div>
+          </form>
+
+          <p class="mb-1">
+            <a href="{% url 'password_reset' %}">Forgot Password?</a>
+          </p>
+        </div>
+        <!-- /.login-card-body -->
+      </div>
+    </div>
+    <!-- /.login-box -->
+
+    <!-- jQuery -->
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+  </body>
+</html>
